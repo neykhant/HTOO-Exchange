@@ -13,12 +13,12 @@ import NotificationContainer from "react-notifications/lib/NotificationContainer
 // import AuthRoute from "./routers/AuthRoute";
 import PirvateRoute from "./routers/PrivateRoute";
 // import Admin from "./pages/Admin";
-import CreateEmployee from "./components/Employee/CreateEmployee";
-import EditEmployee from "./components/Employee/EditEmployee";
-import EmployeeList from "./components/Employee/EmployeeList";
-import CreateCustomer from "./components/customer/CreateCustomer";
-import EditCustomer from "./components/customer/EditCustomer";
-import CustomerList from "./components/customer/CustomerList";
+import CreateEmployee from "./pages/Employee/CreateEmployee";
+import EditEmployee from "./pages/Employee/EditEmployee";
+import EmployeeList from "./pages/Employee/EmployeeList";
+import CreateCustomer from "./pages/customer/CreateCustomer";
+import EditCustomer from "./pages/customer/EditCustomer";
+import CustomerList from "./pages/customer/CustomerList";
 import EditBankName from "./components/bank_name/EditBankName";
 import BankNameList from "./components/bank_name/BankNameList";
 import CreateStackSalary from "./components/stackSalary/CreateStackSalary";
@@ -66,11 +66,11 @@ function App() {
           />
           {/* stack routes */}
           <Route path="/admin/create-employee" element={<CreateEmployee />} />
-          <Route path="/admin/edit-employee" element={<EditEmployee />} />
+          <Route path="/admin/edit-employee/:id" element={<EditEmployee />} />
           <Route path="/admin/list-employee" element={<EmployeeList />} />
           {/* customer routes */}
           <Route path="/admin/create-customer" element={<CreateCustomer />} />
-          <Route path="/admin/edit-customer" element={<EditCustomer />} />
+          <Route path="/admin/edit-customer/:id" element={<EditCustomer />} />
           <Route path="/admin/list-customer" element={<CustomerList />} />
 
           {/* bank routes */}
@@ -99,7 +99,7 @@ function App() {
           <Route path="/admin/list-branch-transfer" element={<BranchTransferList />} />
 
           {/* wave routes */}
-          {/* <Route path="/admin/create-wave" element={<CreateWave />} /> */}
+          <Route path="/admin/create-wave" element={<CreateWave />} />
           <Route path="/admin/list-wave" element={<ListWave />} />
 
           {/* true routes */}

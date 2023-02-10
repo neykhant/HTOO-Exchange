@@ -26,8 +26,8 @@ import React, { useState, useEffect } from "react";
 import DrawerComp from "../drewer/DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
 import CreateBranchTransfer from "../branchTransfer/CreateBranchTransfer";
-import EmployeeList from "../Employee/EmployeeList";
-import CustomerList from "../customer/CustomerList";
+import EmployeeList from "../../pages/Employee/EmployeeList";
+import CustomerList from "../../pages/customer/CustomerList";
 import BankNameList from "../bank_name/BankNameList";
 import BranchList from "../../pages/branch/BranchList";
 import RoleAndAccessList from "../../pages/roleAndAccess/RoleAndAccessList";
@@ -47,30 +47,10 @@ import TrueMoney from "../bank_money/TrueMoney";
 import YomaBank from "../bank_money/YomaBank";
 import ListWave from "../wave/ListWave";
 import TransitionRecord from "../transition_record/TransitionRecord";
-import { useGetUserDetailsQuery } from '../../app/service/auth/authService'
-import { useDispatch, useSelector } from 'react-redux'
-import { logout, setCredentials } from '../../features/auth/authSlice'
 
 const settings = ["Account", "Logout"];
 
 const Navbar = () => {
-  const dispatch = useDispatch()
-  // const { userInfo } = useSelector((state) => state.auth)
-  const { userInfo } = useSelector((state) => state.auth)
-  // automatically authenticate user if token is found
-  const { data, isFetching } = useGetUserDetailsQuery('userDetails', {
-    // perform a refetch every 15mins
-    pollingInterval: 900000,
-    // pollingInterval: 900000,
-  })
-
-  console.log("in nvvabar header", userInfo)
-
-  useEffect(() => {
-    if (data) dispatch(setCredentials(data))
-  }, [data, dispatch])
-
-
   const theme = useTheme();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -322,13 +302,14 @@ const Navbar = () => {
                   onClose={handleCloseUser}
                 >
                   {menus.map((data) => (
-                    <MenuItem key={data.name} >
+                    <MenuItem key={data.name} onClick={() => {
+                      window.location = data.route;
+                    }}>
                       <Link
-                        to={data.route}
+
                         style={{ textDecoration: "none" }}
                         onClose={handleCloseUser}
-                      // onClick={() => setButtonLabel(data?.name)}
-                      // onClick={() => handleSetButton(data?.name)}
+
                       >
                         <Typography textAlign="center" color="black">
                           {data.name}
@@ -417,13 +398,6 @@ const Navbar = () => {
                   {settings.map((setting) => (
                     <MenuItem key={setting} onClick={handleCloseToken}>
                       <Typography textAlign="center">{setting}</Typography>
-                      <span>
-                        {isFetching
-                          ? `Fetching your profile...`
-                          : userInfo !== null
-                            ? `Logged in as ${userInfo.email}`
-                            : "You're not logged in"}
-                      </span>
                     </MenuItem>
                   ))}
                 </Menu>

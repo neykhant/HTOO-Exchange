@@ -1,19 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, InputAdornment, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import AddCircleRoundedIcon from "@mui/icons-material/AddCircleRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { withStyles } from "@material-ui/core/styles";
-
-import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../components/navbar/Navbar";
 import { useTranslation } from "react-i18next";
-import * as RoleService from "./../../services/roleService";
-import { deleteRole, setRoles } from "../../store/reducer.role";
-import { useDispatch, useSelector } from "react-redux";
 import List from "./List";
 import ConfirmDialog from "../../components/Dialogs/ConfirmDialog";
+import { useDispatch, useSelector } from "react-redux";
+import * as CustomerService from "./../../services/customerService";
+import { deleteCustomer, setCustomers } from "../../store/reducer.customer";
 import queryString from "query-string";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const CssTextField = withStyles({
   root: {
@@ -37,39 +36,46 @@ const CssTextField = withStyles({
   },
 })(TextField);
 
-const RoleAndAccessList = () => {
+const CustomerList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showDelete, setShowDelete] = useState(false);
   const [editData, setEditData] = useState(false);
   const location = useLocation();
-  const roles = useSelector((state) => state.role.roles);
+  const customers = useSelector((state) => state.customer.customers);
 
   const handleDelete = async (id) => {
-    await RoleService.deleteRole(id);
-    dispatch(deleteRole(id));
+    await CustomerService.deleteCustomer(id);
+    dispatch(deleteCustomer(id));
   };
 
   const handleLink = () => {
-    navigate("/admin/create-role-access");
+    navigate("/admin/create-customer");
   };
 
   const loadData = async () => {
-    const response = await RoleService.getAll();
-    dispatch(setRoles(response));
+    const query = queryString.parse(location.search);
+    const response = await CustomerService.getAll(query);
+    dispatch(setCustomers(response));
   };
 
   useEffect(() => {
     loadData();
   }, []);
 
+  const handleEdit = (e) => {
+    navigate("/admin/edit-customer/" + e.id);
+  };
+
   const onSearch = async (e) => {
     if (e.key === "Enter") {
       const query = queryString.parse(location.search);
       query.search = e.target.value;
-      const response = await RoleService.getAll(queryString.stringify(query));
-      dispatch(setRoles(response));
+      const response = await CustomerService.getAll(
+        queryString.stringify(query)
+      );
+      dispatch(setCustomers(response));
     }
   };
 
@@ -78,6 +84,7 @@ const RoleAndAccessList = () => {
       <Navbar />
       <div
         style={{
+          // position: "absolute",
           width: "100%",
           height: "80%",
           marginTop: "75px",
@@ -88,8 +95,7 @@ const RoleAndAccessList = () => {
         <Box m={2}>
           <Box mt={2}>
             <Typography variant="h6" color="#094708" ml={2} mb={1} mt={0}>
-              {" "}
-              {t("role-access.table")}
+              {t("customer.list")}
             </Typography>
           </Box>
           <Box
@@ -139,13 +145,13 @@ const RoleAndAccessList = () => {
               <Box>{t("new")}</Box>
             </Button>
           </Box>
-
           <List
-            data={roles}
+            data={customers}
             onDelete={(row) => {
               setEditData(row);
               setShowDelete(true);
             }}
+            handleEdit={handleEdit}
           />
         </Box>
         {showDelete && (
@@ -164,4 +170,4 @@ const RoleAndAccessList = () => {
   );
 };
 
-export default RoleAndAccessList;
+export default CustomerList;

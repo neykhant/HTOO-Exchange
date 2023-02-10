@@ -3,7 +3,7 @@ import { NotificationManager } from "react-notifications";
 
 export async function store(values) {
   try {
-    let response = await sendData("branch", values);
+    let response = await sendData("employee", values);
     return response;
   } catch (e) {
     NotificationManager.error("Failed");
@@ -13,7 +13,7 @@ export async function store(values) {
 
 export async function getAll(query) {
   try {
-    let response = await getData(`branch?${new URLSearchParams(query).toString()}`);
+    let response = await getData(`employee?${new URLSearchParams(query).toString()}`);
     return response.data;
   } catch (e) {
     NotificationManager.error("Failed");
@@ -23,7 +23,7 @@ export async function getAll(query) {
 
 export async function getEach(id) {
   try {
-    let response = await getData("branch/" + id);
+    let response = await getData("employee/" + id);
     return response;
   } catch (e) {
     NotificationManager.error("Failed");
@@ -33,7 +33,7 @@ export async function getEach(id) {
 
 export async function update(values, id) {
   try {
-    let response = await sendData("branch/" + id, values, "PUT");
+    let response = await sendData("employee/" + id, values, "PUT");
     return response;
   } catch (e) {
     NotificationManager.error("Failed");
@@ -41,9 +41,9 @@ export async function update(values, id) {
   }
 }
 
-export async function deleteBranch(id, values) {
+export async function deleteEmployee(id, values) {
   try {
-    let response = await sendData("branch/" + id, values, "DELETE");
+    let response = await sendData("employee/" + id, values, "DELETE");
     return response;
   } catch (e) {
     NotificationManager.error("Failed");
@@ -51,9 +51,9 @@ export async function deleteBranch(id, values) {
   }
 }
 
-export async function assignEmployees(id, values) {
+export async function assignToBranches(id, values) {
   try {
-    let response = await sendData("assign-to-employee/" + id, values);
+    let response = await sendData("assign-to-branch/" + id, values);
     return response;
   } catch (e) {
     NotificationManager.error("Failed");
