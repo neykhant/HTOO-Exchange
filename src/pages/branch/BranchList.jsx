@@ -1,37 +1,22 @@
 import { useEffect, useState } from "react";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  FormControlLabel,
-  FormGroup,
-  InputAdornment,
-  TextField,
-  Typography,
-} from "@mui/material";
+
+import { Button, InputAdornment, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import AddCircleRoundedIcon from "@mui/icons-material/AddCircleRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { withStyles } from "@material-ui/core/styles";
-import DriveFileRenameOutlineRoundedIcon from "@mui/icons-material/DriveFileRenameOutlineRounded";
-import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded";
-import DisplaySettingsRoundedIcon from "@mui/icons-material/DisplaySettingsRounded";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../components/navbar/Navbar";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import * as BranchService from "./../../services/branchService";
-import { setBranches } from "../../store/reducer.branch";
+import { setBranches, deleteBranch } from "../../store/reducer.branch";
+import ConfirmDialog from "../../components/Dialogs/ConfirmDialog";
+import List from "./List";
+import * as EmployeeService from "./../../services/employeeService";
+import { setEmployees } from "../../store/reducer.employee";
+import AssignDialog from "./AssignDialog";
+import queryString from "query-string";
 
 const CssTextField = withStyles({
   root: {
@@ -59,14 +44,21 @@ const BranchList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-
+  const [showDelete, setShowDelete] = useState(false);
+  const [editData, setEditData] = useState(false);
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState([]);
+  const location = useLocation();
   const dispatch = useDispatch();
 
   const branches = useSelector((state) => state.branch.branches);
+  const employees = useSelector((state) => state.employee.employees);
 
   const loadData = async () => {
     const response = await BranchService.getAll();
     dispatch(setBranches(response));
+
+    const result = await EmployeeService.getAll();
+    dispatch(setEmployees(result));
   };
 
   useEffect(() => {
@@ -77,24 +69,55 @@ const BranchList = () => {
     navigate("/admin/edit-branch/" + e.id);
   };
 
-  const handleDelete = () => {
-    console.log("delete");
+  const handleDelete = async (id) => {
+    await BranchService.deleteBranch(id);
+    dispatch(deleteBranch(id));
   };
 
-  // const handleDetail = () => {
-  //     console.log("detail")
-  // }
+  const handleChange = (event) => {
+    let selectedId = parseInt(event.target.value);
+    if (selectedEmployeeIds.find((id) => id === selectedId)) {
+      setSelectedEmployeeIds(
+        selectedEmployeeIds.filter((id) => id !== selectedId)
+      );
+    } else {
+      setSelectedEmployeeIds([...selectedEmployeeIds, selectedId]);
+    }
+  };
 
   const handleLink = () => {
     navigate("/admin/create-branch");
   };
 
-  const handleClickOpen = () => {
+  const handleClickOpen = (e) => {
     setOpen(true);
+    setEditData(e);
+    let branch = branches.find((branch) => branch.id === e.id);
+    setSelectedEmployeeIds(
+      branch.employees.map((employee) => {
+        return employee.id;
+      })
+    );
+  };
+
+  const handleAssign = async () => {
+    await BranchService.assignEmployees(editData.id, {
+      employees: selectedEmployeeIds,
+    });
+    const response = await BranchService.getAll();
+    dispatch(setBranches(response));
   };
 
   const handleClose = () => {
     setOpen(false);
+  };
+  const onSearch = async (e) => {
+    if (e.key === "Enter") {
+      const query = queryString.parse(location.search);
+      query.search = e.target.value;
+      const response = await BranchService.getAll(queryString.stringify(query));
+      dispatch(setBranches(response));
+    }
   };
 
   return (
@@ -110,107 +133,6 @@ const BranchList = () => {
           flexDirection: "column",
         }}
       >
-        <Dialog
-          fullWidth
-          maxWidth="sm"
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          PaperProps={{
-            style: { borderRadius: 18 },
-          }}
-        >
-          <DialogTitle
-            id="alert-dialog-title"
-            bgcolor="#07824f"
-            color="white"
-            textAlign="center"
-          >
-            {"Employee Assign ဇယား"}
-          </DialogTitle>
-          <DialogContent>
-            <CssTextField
-              size="small"
-              label="Search"
-              fullWidth
-              className="search"
-              name="search"
-              // onChange={this.onChange}
-              type="text"
-              autoComplete=""
-              margin="normal"
-              inputProps={{
-                style: { fontFamily: "nunito", color: "black" },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchRoundedIcon />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <FormGroup>
-              <FormControlLabel
-                control={<Checkbox defaultChecked />}
-                label="Mg Mg"
-              />
-              <FormControlLabel
-                control={<Checkbox defaultChecked />}
-                label="Aung Aung"
-              />
-              <FormControlLabel
-                control={<Checkbox defaultChecked />}
-                label="Ko Ko"
-              />
-            </FormGroup>
-          </DialogContent>
-          <DialogActions
-            sx={{
-              display: "flex",
-              justifyContent: "space-around",
-              alignItems: "center",
-              margin: "15px",
-            }}
-          >
-            <Button
-              variant="contained"
-              size="small"
-              sx={{
-                backgroundColor: "#fff",
-                color: "black",
-                minWidth: "200px",
-                fontSize: "14px",
-                ":hover": {
-                  bgcolor: "#fff",
-                  color: "black",
-                },
-              }}
-              onClick={handleClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              sx={{
-                backgroundColor: "#07824f",
-                minWidth: "200px",
-                fontSize: "14px",
-                ":hover": {
-                  bgcolor: "#07824f",
-                  color: "#fff",
-                },
-              }}
-              onClick={handleClose}
-              autoFocus
-            >
-              Assign Employee
-            </Button>
-          </DialogActions>
-        </Dialog>
-
         <Box m={2}>
           <Box mt={2}>
             <Typography variant="h6" color="#094708" ml={2} mb={1} mt={0}>
@@ -229,7 +151,7 @@ const BranchList = () => {
               label="Search"
               className="search"
               name="search"
-              // onChange={this.onChange}
+              onKeyDown={onSearch}
               type="text"
               autoComplete=""
               margin="normal"
@@ -265,91 +187,37 @@ const BranchList = () => {
               <Box>{t("new")}</Box>
             </Button>
           </Box>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead sx={{ backgroundColor: "#094708" }}>
-                <TableRow>
-                  <TableCell
-                    sx={{ color: "white", fontSize: "16px" }}
-                    align="center"
-                  >
-                    {t("no")}
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", fontSize: "16px" }}
-                    align="center"
-                  >
-                    {" "}
-                    {t("branch.name")}
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", fontSize: "16px" }}
-                    align="center"
-                  >
-                    {" "}
-                    {t("branch.staff_qty")}
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", fontSize: "16px" }}
-                    align="center"
-                  >
-                    {t("phone")}
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", fontSize: "16px" }}
-                    align="center"
-                  >
-                    {t("address")}
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", fontSize: "16px" }}
-                    align="center"
-                  >
-                    {t("action")}
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {branches?.map((row, index) => (
-                  <TableRow
-                    key={row.id}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row" align="center">
-                      {index + 1}
-                    </TableCell>
-                    <TableCell align="center">{row.name}</TableCell>
-                    <TableCell align="center">{0}</TableCell>
-                    <TableCell align="center">{row.phone}</TableCell>
-                    <TableCell align="center">{row.address}</TableCell>
-                    <TableCell align="center">
-                      <DisplaySettingsRoundedIcon
-                        onClick={handleClickOpen}
-                        sx={{ color: "green", fontSize: "25px" }}
-                      />
-                      <DriveFileRenameOutlineRoundedIcon
-                        onClick={() => handleEdit(row)}
-                        sx={{
-                          color: "#36353d",
-                          fontSize: "25px",
-                          marginLeft: "5px",
-                        }}
-                      />
-                      <DeleteForeverRoundedIcon
-                        onClick={handleDelete}
-                        sx={{
-                          color: "red",
-                          fontSize: "25px",
-                          marginLeft: "5px",
-                        }}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <List
+            data={branches}
+            handleClickOpen={handleClickOpen}
+            handleEdit={handleEdit}
+            onDelete={(row) => {
+              setEditData(row);
+              setShowDelete(true);
+            }}
+          />
         </Box>
+
+        {showDelete && (
+          <ConfirmDialog
+            title={`Delete Branch`}
+            body={`Are you sure to delete ${editData?.name}?`}
+            onToggle={() => setShowDelete(false)}
+            onConfirm={() => {
+              setShowDelete(false);
+              handleDelete(editData?.id);
+            }}
+          />
+        )}
+        <AssignDialog
+          open={open}
+          handleClose={handleClose}
+          CssTextField={CssTextField}
+          data={employees}
+          selectedEmployeeIds={selectedEmployeeIds}
+          handleChange={handleChange}
+          handleAssign={handleAssign}
+        />
       </div>
     </>
   );

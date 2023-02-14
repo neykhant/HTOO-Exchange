@@ -20,14 +20,15 @@ import {
   CardActionArea,
   CardMedia,
   CardContent,
+  Divider,
 } from "@mui/material";
-import { removeCache } from "../../utils/cache";
+import { removeCache, storeCache } from "../../utils/cache";
 import React, { useState, useEffect } from "react";
 import DrawerComp from "../drewer/DrawerComp";
 import { Link, useNavigate } from "react-router-dom";
 import CreateBranchTransfer from "../branchTransfer/CreateBranchTransfer";
-import EmployeeList from "../Employee/EmployeeList";
-import CustomerList from "../customer/CustomerList";
+import EmployeeList from "../../pages/Employee/EmployeeList";
+import CustomerList from "../../pages/customer/CustomerList";
 import BankNameList from "../bank_name/BankNameList";
 import BranchList from "../../pages/branch/BranchList";
 import RoleAndAccessList from "../../pages/roleAndAccess/RoleAndAccessList";
@@ -47,41 +48,26 @@ import TrueMoney from "../bank_money/TrueMoney";
 import YomaBank from "../bank_money/YomaBank";
 import ListWave from "../wave/ListWave";
 import TransitionRecord from "../transition_record/TransitionRecord";
-import { useGetUserDetailsQuery } from '../../app/service/auth/authService'
-import { useDispatch, useSelector } from 'react-redux'
-import { logout, setCredentials } from '../../features/auth/authSlice'
+import AdminList from "../../pages/Admin/AdminList";
+import { useSelector } from "react-redux";
+import AllowanceList from "../../pages/allowance/AllowanceList";
 
 const settings = ["Account", "Logout"];
 
 const Navbar = () => {
-  const dispatch = useDispatch()
-  // const { userInfo } = useSelector((state) => state.auth)
-  const { userInfo } = useSelector((state) => state.auth)
-  // automatically authenticate user if token is found
-  const { data, isFetching } = useGetUserDetailsQuery('userDetails', {
-    // perform a refetch every 15mins
-    pollingInterval: 900000,
-    // pollingInterval: 900000,
-  })
-
-  console.log("in nvvabar header", userInfo)
-
-  useEffect(() => {
-    if (data) dispatch(setCredentials(data))
-  }, [data, dispatch])
-
-
   const theme = useTheme();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const isMatch = useMediaQuery(theme.breakpoints.down("sm"));
   const [anchorElUser, setAnchorElUser] = useState(null);
   const [anchorElUsers, setAnchorElUsers] = useState(null);
-  // const [buttonLabel, setButtonLabel] = useState("SetUp");
-  // const [buttonLabel, setButtonLabel] = useState(`${t("set-up")}`);
-  // const [age, setAge] = React.useState('');
   const [language, setLanguage] = useState("eng");
   const [value, setValue] = useState("eng");
+
+  const user = useSelector((state) => state.auth.user);
+  const activeBranch = useSelector((state) => state.auth.activeBranch);
+
+
 
 
   const lists = [
@@ -119,6 +105,11 @@ const Navbar = () => {
     //   route: "/admin/create-exchange",
     //   element: <ExchangeCreate />
     // },
+    {
+      name: `${t("admin")}`,
+      route: "/admin/list-admin",
+      element: <AdminList />,
+    },
     {
       name: `${t("branches")}`,
       route: "/admin/list-branch",
@@ -168,6 +159,11 @@ const Navbar = () => {
       name: `YomaMoney`,
       route: "/admin/yoma-money",
       element: <YomaBank />
+    },
+    {
+      name: `Allowance`,
+      route: "/admin/list-allowance",
+      element: <AllowanceList />
     }
 
   ];
@@ -178,6 +174,11 @@ const Navbar = () => {
     i18n.changeLanguage(event.target.value);
     localStorage.setItem("lng", event.target.value);
   };
+
+  const handleBranchChange = (branch) => {
+    storeCache("activeBranch", JSON.stringify(branch));
+    window.location.reload();
+  }
 
   useEffect(() => {
     const lng = localStorage.getItem("lng");
@@ -322,13 +323,14 @@ const Navbar = () => {
                   onClose={handleCloseUser}
                 >
                   {menus.map((data) => (
-                    <MenuItem key={data.name} >
+                    <MenuItem key={data.name} onClick={() => {
+                      window.location = data.route;
+                    }}>
                       <Link
-                        to={data.route}
+
                         style={{ textDecoration: "none" }}
                         onClose={handleCloseUser}
-                      // onClick={() => setButtonLabel(data?.name)}
-                      // onClick={() => handleSetButton(data?.name)}
+
                       >
                         <Typography textAlign="center" color="black">
                           {data.name}
@@ -391,12 +393,18 @@ const Navbar = () => {
                 }}
               >
                 <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar
-                      alt="Remy Sharp"
-                      src="/static/images/avatar/2.jpg"
-                    />
-                  </IconButton>
+
+                  <Button
+                    onClick={handleOpenUserMenu}
+                    sx={{
+                      textTransform: "none",
+                      margin: "5px", backgroundColor: "#094708", ':hover': {
+                        bgcolor: '#094708',
+                        color: '#fff'
+                      }
+                    }} variant="contained" >
+                    {activeBranch?.name}
+                  </Button>
                 </Tooltip>
                 <Menu
                   sx={{ mt: "45px" }}
@@ -414,18 +422,25 @@ const Navbar = () => {
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                 >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseToken}>
-                      <Typography textAlign="center">{setting}</Typography>
-                      <span>
-                        {isFetching
-                          ? `Fetching your profile...`
-                          : userInfo !== null
-                            ? `Logged in as ${userInfo.email}`
-                            : "You're not logged in"}
-                      </span>
-                    </MenuItem>
-                  ))}
+
+                  <MenuItem>
+                    <Typography textAlign="center">{user?.employee?.name}</Typography>
+                  </MenuItem>
+                  <Divider />
+                  {
+                    user?.employee.branches?.map((branch) => (
+                      <MenuItem onClick={() => handleBranchChange(branch)}>
+                        <Typography textAlign="center">{branch.name}
+                          {activeBranch.id === branch.id && <span style={{ color: "red" }}>*</span>}
+                        </Typography>
+                      </MenuItem>
+                    ))
+                  }
+                  <Divider />
+                  <MenuItem onClick={handleCloseToken}>
+                    <Typography textAlign="center">Logout</Typography>
+                  </MenuItem>
+
                 </Menu>
               </Box>
             </Grid>

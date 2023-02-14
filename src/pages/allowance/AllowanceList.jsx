@@ -1,19 +1,18 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, InputAdornment, TextField, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import AddCircleRoundedIcon from "@mui/icons-material/AddCircleRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { withStyles } from "@material-ui/core/styles";
-
-import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../../components/navbar/Navbar";
 import { useTranslation } from "react-i18next";
-import * as RoleService from "./../../services/roleService";
-import { deleteRole, setRoles } from "../../store/reducer.role";
-import { useDispatch, useSelector } from "react-redux";
 import List from "./List";
 import ConfirmDialog from "../../components/Dialogs/ConfirmDialog";
+import { useDispatch, useSelector } from "react-redux";
+import * as AllowanceService from "../../services/allowanceService";
+import { deleteAllowance, setAllowances } from "../../store/reducer.allowance";
 import queryString from "query-string";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const CssTextField = withStyles({
   root: {
@@ -37,39 +36,46 @@ const CssTextField = withStyles({
   },
 })(TextField);
 
-const RoleAndAccessList = () => {
+const AllowanceList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showDelete, setShowDelete] = useState(false);
   const [editData, setEditData] = useState(false);
   const location = useLocation();
-  const roles = useSelector((state) => state.role.roles);
+  const allowances = useSelector((state) => state.allowance.allowances);
 
   const handleDelete = async (id) => {
-    await RoleService.deleteRole(id);
-    dispatch(deleteRole(id));
+    await AllowanceService.deleteAllowance(id);
+    dispatch(deleteAllowance(id));
   };
 
   const handleLink = () => {
-    navigate("/admin/create-role-access");
+    navigate("/admin/create-allowance");
   };
 
   const loadData = async () => {
-    const response = await RoleService.getAll();
-    dispatch(setRoles(response));
+    const query = queryString.parse(location.search);
+    const response = await AllowanceService.getAll(query);
+    dispatch(setAllowances(response));
   };
 
   useEffect(() => {
     loadData();
   }, []);
 
+  const handleEdit = (e) => {
+    navigate("/admin/edit-allowance/" + e.id);
+  };
+
   const onSearch = async (e) => {
     if (e.key === "Enter") {
       const query = queryString.parse(location.search);
       query.search = e.target.value;
-      const response = await RoleService.getAll(queryString.stringify(query));
-      dispatch(setRoles(response));
+      const response = await AllowanceService.getAll(
+        queryString.stringify(query)
+      );
+      dispatch(setAllowances(response));
     }
   };
 
@@ -78,6 +84,7 @@ const RoleAndAccessList = () => {
       <Navbar />
       <div
         style={{
+          // position: "absolute",
           width: "100%",
           height: "80%",
           marginTop: "75px",
@@ -88,8 +95,7 @@ const RoleAndAccessList = () => {
         <Box m={2}>
           <Box mt={2}>
             <Typography variant="h6" color="#094708" ml={2} mb={1} mt={0}>
-              {" "}
-              {t("role-access.table")}
+              {t("allowance.list")}
             </Typography>
           </Box>
           <Box
@@ -139,18 +145,18 @@ const RoleAndAccessList = () => {
               <Box>{t("new")}</Box>
             </Button>
           </Box>
-
           <List
-            data={roles}
+            data={allowances}
             onDelete={(row) => {
               setEditData(row);
               setShowDelete(true);
             }}
+            handleEdit={handleEdit}
           />
         </Box>
         {showDelete && (
           <ConfirmDialog
-            title={`Delete Role`}
+            title={`Delete Allowance`}
             body={`Are you sure to delete ${editData?.name}?`}
             onToggle={() => setShowDelete(false)}
             onConfirm={() => {
@@ -164,4 +170,4 @@ const RoleAndAccessList = () => {
   );
 };
 
-export default RoleAndAccessList;
+export default AllowanceList;

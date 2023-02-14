@@ -1,8 +1,9 @@
 {
-    "employee.title": "Staff List",
-    "employee.create_title": "Create Staff ",
+    "employee.title": "Employee List",
+    "employee.create_title": "Create Employee ",
     "employee.name": "Employee Name",
     "customer.list": "Customer List",
+    "admin.list": "Admin List",
     "customer.name": "Customer Name",
     "new_customer": "Customer Create",
     "bank.list": "Bank Account List",
@@ -32,6 +33,8 @@
     "branch-transfer.account-cash": "Amount(E-Money/Cash)",
     "branch-transfer.from-transfer-type": "From Transfer Type",
     "branch-transfer.to-transfer-type": "To Transfer Type",
+    "new_allowance": "Allowance Create",
+    "allowance.list": "Allowance List",
 
     "from-bank": "From Bank",
     "to-bank": "To Bank",
@@ -138,6 +141,9 @@
     "role-access": "Role&Access",
     "branches": "Branches",
     "type": "Type",
-    "amount": "Amount"
+    "amount": "Amount",
+    "email":"Email",
+    "password":"Password",
+    "employee":"Employee"
 
 }

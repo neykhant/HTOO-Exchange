@@ -12,9 +12,9 @@ export async function store(values) {
 }
 
 
-export async function getAll() {
+export async function getAll(query) {
     try {
-        let response = await getData('role')
+        let response = await getData(`role?${new URLSearchParams(query).toString()}`)
         return response.data;
     } catch (e) {
         NotificationManager.error('Failed')
@@ -42,3 +42,12 @@ export async function update(values, id) {
     }
 }
 
+export async function deleteRole(id, values) {
+    try {
+      let response = await sendData("role/" + id, values, "DELETE");
+      return response;
+    } catch (e) {
+      NotificationManager.error("Failed");
+      return false;
+    }
+  }
