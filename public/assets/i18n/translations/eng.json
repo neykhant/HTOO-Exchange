@@ -1,8 +1,9 @@
 {
-    "employee.title": "Staff List",
-    "employee.create_title": "Create Staff ",
+    "employee.title": "Employee List",
+    "employee.create_title": "Create Employee ",
     "employee.name": "Employee Name",
     "customer.list": "Customer List",
+    "admin.list": "Admin List",
     "customer.name": "Customer Name",
     "new_customer": "Customer Create",
     "bank.list": "Bank Account List",
@@ -13,7 +14,7 @@
     "bank.acc_owner": "Account Owner",
     "bank.other_bank_name": "Other Bank Name",
     "bank.name": "Bank Name",
-    "bank.open_list": "Open List",
+    "bank.open_list": "Opening Balance",
     "branch.list": "Branch List",
     "branch.name": "Branch Name",
     "branch.staff_qty": "Staff Qty",
@@ -32,6 +33,15 @@
     "branch-transfer.account-cash": "Amount(E-Money/Cash)",
     "branch-transfer.from-transfer-type": "From Transfer Type",
     "branch-transfer.to-transfer-type": "To Transfer Type",
+    "new_allowance": "Allowance Create",
+    "allowance.list": "Allowance List",
+    "new_wave_money_transfer": "Wave Money Commission Create",
+    "wave_money_transfer.list": "Wave Money Commission List",
+    "new_true_money_transfer": "True Money Commission Create",
+    "true_money_transfer.list": "True Money Commission",
+    "new_cash_wallet": "Cash Wallet Create",
+    "cash_wallet.list": "Cash Wallet",
+    "commission":"Commission",
 
     "from-bank": "From Bank",
     "to-bank": "To Bank",
@@ -42,9 +52,11 @@
     "transfer-fee": "Transfer Fee",
     "export-amount": "Export Amount",
     "export-fee": "Export Fee",
-    "wave-acc": "Wace Accounts",
+    "wave-acc": "Wave Account",
     "otm": "OTM(%)",
     "wave-acc-left-money": "Wace Account Left Money",
+    "true-acc-left-money": "Wace Account Left Money",
+    
     "total-e-money": "Total E-Money",
     "total-cash-money": "Total-Cash",
 
@@ -64,7 +76,9 @@
 
     "staff-salary.total": "Total",
     "staff-salary.month-year": "Month/Year",
-
+    "staff-salary.month": "Month",
+    "staff-salary.year": "Year",
+    "new_admin":"New Admin",
 
     "no": "No",
     "name": "Name",
@@ -108,12 +122,16 @@
     "omt": "OMT(%)",
     "create-true-money": "Create True Money",
     "transition-record": "Transition Records",
-
+    "minimum_amount": "Minimum amount",
+    "maximum_amount": "Maximum amount",
+    "transfer_fee": "Transfer fee",
+    "deposit_fee": "Deposit fee",
+    "withdraw_fee": "Withdraw fee",
     "w-agent": "W-Agent",
     "employees": "Employees",
     "excel": "Excel Export",
     "set-up": "SetUp",
-    "staff-salary": "Stack Salary",
+    "staff-salary": "Salary",
     "expense": "Expense",
     "branch-transfer": "Branch Transfer",
     "banks": "Banks",
@@ -138,6 +156,13 @@
     "role-access": "Role&Access",
     "branches": "Branches",
     "type": "Type",
-    "amount": "Amount"
+    "amount": "Amount",
+    "email":"Email",
+    "password":"Password",
+    "employee":"Employee",
+    "wave_money_transcation":"Wave Money Transcation",
+    "true_money_transcation":"True Money Transcation"
+    
+    
 
 }
